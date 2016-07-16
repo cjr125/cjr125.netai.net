@@ -7,7 +7,7 @@
   function DBLogin($db_name) {
     $host = "mysql13.000webhost.com";
     $user = "a8823305_cjr125";
-    $password = "4Cropo.L15";
+    $password = "________";
     $connection = mysql_connect($host, $user, $password);
     if (!$connection) {
       die('Not connected: '.mysql_error());
