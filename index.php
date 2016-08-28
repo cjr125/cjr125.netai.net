@@ -2,10 +2,10 @@
 <html>
 <head>
   <?php require 'db.php';
-    $referer = $_SERVER["HTTP_REFERER"];
-      DBLogin("a8823305_audio");
-    if ($referer != "") {
-      $result = DBQuery("INSERT INTO referers (url, uri, remote_addr, useragent) VALUES('".$referer."', '".$_SERVER["REQUEST_URI"]."', '".$_SERVER["REMOTE_ADDR"]."', '".$_SERVER["HTTP_USER_AGENT"]."')");
+    $referer = $_SERVER[HTTP_REFERER];
+      DBLogin('b6_17569910_audio');
+    if ($referer != '') {
+      $result = DBQuery("INSERT INTO referers (url, uri, remote_addr, useragent) VALUES('".$referer."', '".$_SERVER[REQUEST_URI]."', '".$_SERVER[REMOTE_ADDR]."', '".$_SERVER[HTTP_USER_AGENT]."')");
     }  
   ?>
 
@@ -76,7 +76,6 @@
 	}
         #pager {
           width:100%;
-          padding: 0 28%;
           clear:both;
         }
         #pager, #pager li {
@@ -172,7 +171,7 @@
     <div class="overlay"></div>
     <div class='welcome'>
       <div class='content' id='content'>
-        <img src='http://www.cjr125.netai.net/images/close.png' alt='quit' class='x' id='x' />
+        <img src='http://www.cjr125.byethost6.com/images/close.png' alt='quit' class='x' id='x' />
 	<p>
 	Thank you for visiting my music site. Welcome to the first step in this project to help people share their creativity with the world online! 
 	With the associated media and any computer system with audio recording capabilities, it is possible to collaborate musically from any mobile device with internet access.
@@ -186,17 +185,20 @@
     </div>
     <ul id="spotId">
       <?php
-        $pageSize = 20;
-        $page = $_REQUEST["page"] == null ? 1 : $_REQUEST["page"];
+        $pageSize = 10;
+        $page = $_REQUEST[page] == null ? 1 : $_REQUEST[page];
+        $lowerBound = $pageSize * ($page - 1);
+        $upperBound = $pageSize * $page;
         $currentPageTracks = 0;
-        $totalTracks = 1;
-        $trackListResult = DBQuery("SELECT m.*, AVG(r.rating) as rating FROM cjrmusic m LEFT OUTER JOIN ratings r ON r.id_post = m.title GROUP BY m.title ORDER BY rating DESC");
+        $sql = 'SELECT SQL_CALC_FOUND_ROWS m.*, AVG(r.rating) as rating FROM cjrmusic m LEFT OUTER JOIN ratings r ON r.id_post = m.title GROUP BY m.title ORDER BY rating DESC, m.title ASC LIMIT '.$lowerBound.', '.$pageSize;
+        $trackListResult = DBQuery($sql);
+        $totalTracks = mysql_fetch_assoc(DBQuery('SELECT FOUND_ROWS() as total'));
+        $totalTracks = $totalTracks ? $totalTracks['total'] : 0;
         while ($trackResult = mysql_fetch_assoc($trackListResult)) {
-	  $file = $trackResult["location"];
-          $name = $trackResult["title"];
-	  if ($totalTracks <= $pageSize * $page && $totalTracks > ($pageSize * ($page - 1))) {
-	    if ($trackResult["rating"]) {
-	      $rate_value = $trackResult["rating"];
+	    $file = $trackResult['location'];
+            $name = $trackResult['title'];
+	    if ($trackResult['rating']) {
+	      $rate_value = $trackResult['rating'];
 	      $rate_bg = ($rate_value/5)*100;
 	    }else{
 	      $rate_value = 0;
@@ -214,29 +216,20 @@
 		  <div class="rate-bg" style="width:'.$rate_bg.'%"></div>
 		  <div class="rate-stars"></div>
 		</div></li>';
-	   if ($currentPageTracks < $pageSize) {
 	     $currentPageTracks++;
-	   } else {
-	     $page++;
-	     $currentPageTracks = 0;
-	   }
-	 }
-	 $totalTracks++;
        }
-       $totalTracks--;
        DBC();
       ?>
     </ul>
     </ul>
     <?php 
-      $page = $_REQUEST["page"] == null ? 1 : $_REQUEST["page"];
-      echo '<div>Tracks: '.($pageSize * ($page - 1) + 1).' - '.($totalTracks <= $pageSize * $page ? $totalTracks : $pageSize * $page).' of '.$totalTracks.'</div>'; 
+      echo '<div>Tracks: '.($lowerBound + 1).' - '.($totalTracks <= $upperBound ? $totalTracks : $upperBound).' of '.$totalTracks.'</div>'; 
     ?>
      <ul id="pager">
       <?php
         $pages = $totalTracks / $pageSize + 1;
         for ($i = 1; $i < $pages; $i++) {
-          echo '<li><a href="http://www.cjr125.netai.net?page='.$i.'"><span class="page">'.$i.'</span></a></li>';
+          echo '<li><a href="http://www.cjr125.byethost6.com?page='.$i.'"><span class="page">'.$i.'</span></a></li>';
         }
       ?>
     </ul>
@@ -244,7 +237,6 @@
       <img src="http://www.cjr125.netai.net/images/default.jpg" width="160" height="25" border="0" alt="View Chris Roberts's profile on LinkedIn"> 
     </a>
     <br>
-    <a href="http://www.000webhost.com/" target="_blank"><img src="http://www.000webhost.com/images/80x15_powered.gif" alt="Web Hosting" width="80" height="15" border="0" /></a>
     <!--<script type="text/javascript" src="js/ad.js"></script>-->
     <div style="display:none;">
     <!-- START OF HIT COUNTER CODE -->
